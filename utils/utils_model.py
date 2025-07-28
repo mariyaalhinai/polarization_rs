@@ -315,23 +315,31 @@ def train(model, optimizer, dataloader_train, dataloader_valid, loss_fn, loss_fn
         history = results['history']
         s0 = history[-1]['step'] + 1
 
-
+    l1_lambda = 1e-4
     for step in range(max_iter):
         model.train()
         loss_cumulative = 0.
         loss_cumulative_mae = 0.
         
-        for j, d in tqdm(enumerate(dataloader_train), total=len(dataloader_train), bar_format=bar_format):
+        for j, d in enumerate(dataloader_train):
             d.to(device)
             output = model(d)
-            loss = loss_fn(output, d.y).cpu()
+            base_loss = loss_fn(output, d.y).cpu()
             loss_mae = loss_fn_mae(output, d.y).cpu()
-            loss_cumulative = loss_cumulative + loss.detach().item()
+
+            #L1 regularization
+            l1_norm = sum(p.abs().mean() for p in model.parameters() if p.requires_grad)
+            loss = base_loss + l1_lambda * l1_norm
+
+            loss_cumulative = loss_cumulative + base_loss.detach().item()
             loss_cumulative_mae = loss_cumulative_mae + loss_mae.detach().item()
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            if step == 0:
+                print(f"num {j}, loss = {loss}, train time = {time.time() - start_time:.2f} s", end='\r')
+
 
         end_time = time.time()
         wall = end_time - start_time
