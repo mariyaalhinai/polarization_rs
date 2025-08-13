@@ -316,6 +316,7 @@ def train(model, optimizer, dataloader_train, dataloader_valid, loss_fn, loss_fn
         s0 = history[-1]['step'] + 1
 
     l1_lambda = 1e-4
+    print(f'l1 regularization lambda = {l1_lambda:.2e}')
     for step in range(max_iter):
         model.train()
         loss_cumulative = 0.
