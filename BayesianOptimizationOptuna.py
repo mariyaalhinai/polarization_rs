@@ -31,10 +31,10 @@ def trial_already_ran(params, df):
 def objective(trial):
     global df
     # Define search space
-    em_dim = trial.suggest_categorical("em_dim", [16, 32, 64, 96, 128])
-    layers = trial.suggest_categorical("layers", [1, 2, 3, 4])
-    mul = trial.suggest_categorical("mul", [8, 16, 32, 64])
-    lmax = trial.suggest_categorical("lmax", [1, 2, 3, 4])
+    em_dim = trial.suggest_int("em_dim", 16, 128)
+    layers = trial.suggest_int("layers", 1, 4)
+    mul = trial.suggest_int("mul", 8, 64)
+    lmax = trial.suggest_int("lmax", 1, 4)
     r_max = trial.suggest_float("r_max", 2.0, 6.0)
 
     params = {
